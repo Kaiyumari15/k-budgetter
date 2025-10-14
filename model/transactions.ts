@@ -9,3 +9,4 @@ type transaction = {
     createdAt: String; // ISO 8601 date string
     updatedAt: String; // ISO 8601 date string
 }
+export default transaction;
