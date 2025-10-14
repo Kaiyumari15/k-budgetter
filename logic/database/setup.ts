@@ -41,6 +41,7 @@ async function createTransactionsTable(client: Surreal): Promise<void> {
 DEFINE TABLE transactions SCHEMAFULL;
 
 -- Define the fields for the 'transactions' table
+DEFINE FIELD title ON TABLE transactions TYPE string ASSERT $value != NONE;
 DEFINE FIELD description ON TABLE transactions TYPE string;
 DEFINE FIELD value ON TABLE transactions TYPE float ASSERT $value != 0;
 DEFINE FIELD datetime ON TABLE transactions TYPE datetime DEFAULT time::now();

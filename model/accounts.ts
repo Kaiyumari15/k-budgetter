@@ -1,4 +1,5 @@
 type account = {
+    id: string; // SurrealDB record ID
     name: string;
     type: string;
     initialBalance: number;
