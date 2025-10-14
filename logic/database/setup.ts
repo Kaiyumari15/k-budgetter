@@ -63,3 +63,25 @@ DEFINE FIELD updatedAt ON TABLE transactions TYPE datetime VALUE time::now() ON 
     });
     return void 0;
 }
+
+async function createLabelsTable(client: Surreal): Promise<void> {
+    const query = `
+-- Define the 'labels' table with strict schema enforcement
+DEFINE TABLE labels SCHEMAFULL;
+
+-- Define the fields for the 'labels' table
+DEFINE FIELD name ON TABLE labels TYPE string ASSERT $value != NONE;
+DEFINE FIELD description ON TABLE labels TYPE string;
+DEFINE FIELD colour ON TABLE labels TYPE string;
+
+-- Timestamps for tracking creation and updates
+DEFINE FIELD createdAt ON TABLE labels TYPE datetime VALUE time::now() READONLY;
+DEFINE FIELD updatedAt ON TABLE labels TYPE datetime VALUE time::now() ON UPDATE time::now();
+    `;
+
+    await client.query(query).catch((error) => {
+        console.error("Failed to create 'labels' table:", error);
+        throw error;
+    });
+    return void 0;
+}
