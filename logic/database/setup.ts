@@ -47,10 +47,10 @@ DEFINE FIELD value ON TABLE transactions TYPE float ASSERT $value != 0;
 DEFINE FIELD datetime ON TABLE transactions TYPE datetime DEFAULT time::now();
 
 -- Link to a single record in the 'accounts' table. This is required.
-DEFINE FIELD account ON TABLE transactions TYPE record(accounts) ASSERT $value != NONE;
+DEFINE FIELD account ON TABLE transactions TYPE record<accounts> ASSERT $value != NONE;
 
 -- Link to multiple records in the 'labels' table. This is optional.
-DEFINE FIELD labels ON TABLE transactions TYPE array<record(labels)>;
+DEFINE FIELD labels ON TABLE transactions TYPE array<record<labels>>;
 
 -- Timestamps for tracking creation and updates
 DEFINE FIELD createdAt ON TABLE transactions TYPE datetime VALUE time::now() READONLY;
@@ -81,6 +81,36 @@ DEFINE FIELD updatedAt ON TABLE labels TYPE datetime VALUE time::now() ON UPDATE
 
     await client.query(query).catch((error) => {
         console.error("Failed to create 'labels' table:", error);
+        throw error;
+    });
+    return void 0;
+}
+
+async function createSubscriptionsTable(client: Surreal): Promise<void> {
+    const query = `
+-- Define the 'subscriptions' table with strict schema enforcement
+DEFINE TABLE subscriptions SCHEMAFULL;
+
+-- Define the fields for the 'subscriptions' table
+DEFINE FIELD title ON TABLE subscriptions TYPE string ASSERT $value != NONE;
+DEFINE FIELD description ON TABLE subscriptions TYPE string;
+DEFINE FIELD value ON TABLE subscriptions TYPE float ASSERT $value != NONE;
+DEFINE FIELD rrule ON TABLE subscriptions TYPE string;
+DEFINE FIELD startDate ON TABLE subscriptions TYPE datetime DEFAULT time::now();
+
+-- Link to a single record in the 'accounts' table. This is required.
+DEFINE FIELD account ON TABLE subscriptions TYPE record<accounts> ASSERT $value != NONE;
+
+-- Link to multiple records in the 'labels' table. This is optional.
+DEFINE FIELD labels ON TABLE subscriptions TYPE array<record<labels>>;
+
+-- Timestamps for tracking creation and updates
+DEFINE FIELD createdAt ON TABLE subscriptions TYPE datetime VALUE time::now() READONLY;
+DEFINE FIELD updatedAt ON TABLE subscriptions TYPE datetime VALUE time::now() ON UPDATE time::now();
+    `;
+    
+    await client.query(query).catch((error) => {
+        console.error("Failed to create 'subscriptions' table:", error);
         throw error;
     });
     return void 0;
