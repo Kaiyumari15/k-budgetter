@@ -34,3 +34,31 @@ DEFINE FIELD updatedAt ON TABLE accounts TYPE datetime VALUE time::now() ON UPDA
     });
     return void 0;
 }
+
+async function createTransactionsTable(client: Surreal): Promise<void> {
+    const query = `
+-- Define the 'transactions' table with strict schema enforcement
+DEFINE TABLE transactions SCHEMAFULL;
+
+-- Define the fields for the 'transactions' table
+DEFINE FIELD description ON TABLE transactions TYPE string;
+DEFINE FIELD value ON TABLE transactions TYPE float ASSERT $value != 0;
+DEFINE FIELD datetime ON TABLE transactions TYPE datetime DEFAULT time::now();
+
+-- Link to a single record in the 'accounts' table. This is required.
+DEFINE FIELD account ON TABLE transactions TYPE record(accounts) ASSERT $value != NONE;
+
+-- Link to multiple records in the 'labels' table. This is optional.
+DEFINE FIELD labels ON TABLE transactions TYPE array<record(labels)>;
+
+-- Timestamps for tracking creation and updates
+DEFINE FIELD createdAt ON TABLE transactions TYPE datetime VALUE time::now() READONLY;
+DEFINE FIELD updatedAt ON TABLE transactions TYPE datetime VALUE time::now() ON UPDATE time::now();
+    `;
+
+    await client.query(query).catch((error) => {
+        console.error("Failed to create 'transactions' table:", error);
+        throw error;
+    });
+    return void 0;
+}
